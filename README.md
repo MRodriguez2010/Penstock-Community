@@ -88,3 +88,7 @@ This release targets a single trusted workspace owner. Setup uses a local config
 ## Contributing
 
 Run `python3 -m unittest discover -s tests -v`. With Node.js 22 or newer, run `node --test tests/*.mjs` for the canvas tests. CI also installs the Compose version and drives the studio through a browser. Open a pull request with the intended behavior and the check you used. Portability fixes and support for additional providers are welcome.
+
+## Self-hosting permission
+
+Anyone may copy, install, configure, adapt, and run this Community Edition on their own infrastructure. The project has yet to select a general open-source redistribution license.
