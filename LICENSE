@@ -1,22 +1,33 @@
-MIT License
+Penstock Community Noncommercial License 1.0
 
 Copyright (c) 2026 Miguel Rodriguez
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+For Penstock software and documentation that Miguel Rodriguez offers under
+this license, you may use, self-host, copy, study, modify and distribute the
+software and your modifications, in source or compiled form, free of charge,
+for noncommercial purposes. Examples include personal projects, learning and
+unpaid community work carried out for a noncommercial purpose.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Commercial use requires a separate written license from Miguel Rodriguez
+before that use begins. Commercial use includes running Penstock for a
+for-profit business's operations, using it to provide paid consulting or
+client services, selling copies, offering paid hosting, and including it in
+a commercial product or service. Giving access for free as part of a
+commercial offering is commercial use.
+
+Include this license and the copyright notice in all copies or substantial
+portions. When distributing Penstock or a modified version, credit Miguel
+Rodriguez as the original author in the documentation or another place where
+recipients can readily find it. Identify your modifications and distribute
+the covered material subject to these terms. You retain ownership of your
+original additions.
+
+Separately licensed components remain governed by their own terms.
+Prior grants under other licenses remain effective for the material covered
+by those grants. All rights not expressly granted here are reserved.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
+IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, THE AUTHORS
+AND COPYRIGHT HOLDERS ARE NOT LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.

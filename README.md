@@ -1,6 +1,8 @@
 # Penstock
 
-**Work in progress · Community Edition**
+**Work in progress · Source-available for noncommercial use**
+
+Created by Miguel Rodriguez. You can self-host, modify and share Penstock for noncommercial use with attribution. Contact Miguel before using this edition commercially. [License](LICENSE) · [Commercial licensing inquiries](https://github.com/MRodriguez2010/Penstock-Community/issues/new?title=Commercial+licensing+inquiry)
 
 Penstock turns a description of a job into a workflow you can inspect before you run it. Choose your model, review the proposed graph, and follow the input and output of each step. A person can approve a branch or inspect exactly what a service will receive. The studio and run history live on your infrastructure.
 
@@ -87,8 +89,10 @@ This release targets a single trusted workspace owner. Setup uses a local config
 
 ## Contributing
 
-Run `python3 -m unittest discover -s tests -v`. With Node.js 22 or newer, run `node --test tests/*.mjs` for the canvas tests. CI also installs the Compose version and drives the studio through a browser. Open a pull request with the intended behavior and the check you used. Portability fixes and support for additional providers are welcome.
+Run `python3 -m unittest discover -s tests -v`. With Node.js 22 or newer, run `node --test tests/*.mjs` for the canvas tests. CI also installs the Compose version and drives the studio through a browser. Open a pull request with the intended behavior and the check you used. Portability fixes and support for additional providers are welcome. [Contribution terms](CONTRIBUTING.md)
 
 ## License
 
-Penstock Community Edition is available under the [MIT License](LICENSE).
+The Penstock Community Noncommercial License covers current first-party releases. It requires attribution to Miguel Rodriguez. Business operations, paid client work and commercial hosting require a separate written license from Miguel. You can open a licensing inquiry with just a request to get in touch. Keep confidential business details out of the public issue. [Full terms](LICENSE)
+
+The earlier snapshot at commit `3dffaf6` was published under MIT. Its MIT grant continues to apply to that material. Third-party components retain their own licenses. [Earlier snapshot and license](https://github.com/MRodriguez2010/Penstock-Community/blob/3dffaf6aebd4ce7cd431c9315f4b3919edf56271/LICENSE)
