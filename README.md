@@ -4,6 +4,8 @@
 
 Penstock turns a description of a job into a workflow you can inspect before you run it. Choose your model, review the proposed graph, and follow the input and output of each step. A person can approve a branch or inspect exactly what a service will receive. The studio and run history live on your infrastructure.
 
+![A published intake workflow waiting for review. The canvas highlights the route taken by an urgent request.](docs/workflow-studio.png)
+
 ## Try a workflow in five minutes
 
 Use Python 3.11 or newer. The server and browser client have no package dependencies. On Windows, use `py -3` in place of `python3`.

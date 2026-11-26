@@ -119,6 +119,7 @@ function drawGraph() {
   for (const n of nodes) {
     const b = button('',() => {selected=n.id;drawGraph();},'node');
     b.style.left=box.get(n.id).left+'px'; b.style.top=box.get(n.id).top+'px';
+    b.title = n.label || n.id;
     b.classList.toggle('visited',receipts.has(n.id)); b.classList.toggle('active',selected===n.id);
     b.classList.toggle('waiting',trace?.state==='waiting' && trace.cursor===n.id);
     b.append(el('small',n.type),el('strong',n.label || n.id));canvas.append(b);

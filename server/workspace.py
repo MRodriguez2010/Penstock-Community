@@ -135,8 +135,7 @@ class Workspace:
 
     def decide(self, rid, node_id, approve):
         record = self.run(rid)
-        if approve:
-            self.check_binding(self.version(record["workflow"], record["version"]))
+        self.check_binding(self.version(record["workflow"], record["version"]))
         if type(approve) is not bool:
             raise ValueError("A decision must be true or false.")
         with self.db() as c:
