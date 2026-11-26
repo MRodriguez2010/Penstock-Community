@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Penstock · Workflow studio</title><link rel="icon" href="/src/penstock.svg"><link rel="stylesheet" href="/src/style.css"></head>
+<body><header><div class="brand"><img src="/src/penstock.svg" width="34" height="34" alt=""><b>Penstock</b></div><span>Workflow studio</span><button id="lock" hidden>Lock workspace</button></header>
+<main id="login"><form id="unlock"><h1>Open your workspace</h1><label>Owner key<input id="owner" type="password" autocomplete="current-password" required></label>
+<p>Run <code>python penstock.py key</code> in your installation to read the key.</p><button class="primary">Open studio</button></form></main>
+<div id="studio" hidden>
+<nav aria-label="Workspace"><div class="navhead"><h2>Workflows</h2><button id="new" title="New workflow">New</button></div><div id="library"></div><h2>Run history</h2><div id="history"></div><details><summary>Connections</summary><div id="catalog"></div><p>Edit <code>connections.toml</code> in your workspace and restart to load changes.</p></details></nav>
+<main class="desk"><section id="author" hidden><div class="title"><h1>Draft a workflow</h1><button id="cancel">Close</button></div>
+<label>What should happen?<textarea id="brief" rows="3" placeholder="Summarize each request, then ask for review before delivery."></textarea></label>
+<div class="actions"><select id="provider" aria-label="Drafting provider"></select><button id="generate" class="primary">Generate proposal</button></div>
+<p id="offline">To generate a proposal, configure a model in your workspace. You can edit and run the starter below offline.</p>
+<label>Workflow proposal<textarea id="proposal" rows="13" spellcheck="false"></textarea></label><button id="save" class="primary">Save draft version</button></section>
+<section id="work"><div class="title"><div><div id="revision" class="meta"></div><h1 id="name"></h1></div><button id="edit">Edit proposal</button></div>
+<div class="canvas-tools"><span>Workflow canvas</span><select id="layout" aria-label="Canvas layout"><option value="human">Readable layout</option><option value="vertical-tb">Vertical layout</option><option value="box">Box layout</option><option value="closest">Closest cleanup</option></select></div>
+<div class="viewport"><div id="canvas"></div></div>
+<div class="inspect" id="inspector"></div>
+<div class="runbar"><label>Run input<textarea id="input" rows="2">Urgent request for review</textarea></label><div class="actions"><button id="test" class="primary">Test version</button><button id="publish">Publish version</button><button id="run">Run published version</button></div></div>
+<section id="receipt" hidden><div class="title"><h2>Run receipt</h2><span id="status"></span></div><div id="decision"></div><ol id="steps"></ol><pre id="result"></pre></section></section>
+</main></div><p role="status" id="notice" hidden></p><script type="module" src="/src/app.js"></script></body></html>

@@ -1,0 +1,25 @@
+# Empty catalogs run the starter workflow fully offline. Uncomment only the entries you use.
+# URLs are complete request endpoints, relative to the machine running Penstock.
+# [providers.local]
+# protocol = "ollama"
+# url = "http://127.0.0.1:11434/api/chat"
+# model = "your-installed-model"
+
+# [providers.gateway]
+# protocol = "chat-completions"
+# url = "https://models.example.org/v1/chat/completions"
+# model = "your-model-id"
+# key_env = "MODEL_API_KEY"
+
+# [providers.messages]
+# protocol = "anthropic-messages"
+# url = "https://api.anthropic.com/v1/messages"
+# model = "your-model-id"
+# key_env = "MESSAGES_API_KEY"
+
+# [services.inbox]
+# url = "https://service.example.org/reviewed-input"
+# key_env = "INBOX_TOKEN"
+
+[skills]
+summarize = "skills/summarize.md"

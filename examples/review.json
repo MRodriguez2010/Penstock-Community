@@ -1,0 +1,45 @@
+{
+  "name": "Review an intake request",
+  "steps": [
+    {
+      "id": "intake",
+      "type": "start",
+      "label": "Receive request",
+      "next": "route"
+    },
+    {
+      "id": "route",
+      "type": "condition",
+      "label": "Check for urgency",
+      "config": {
+        "contains": "urgent"
+      },
+      "next": {
+        "true": "review",
+        "false": "ready"
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "label": "Review urgent request",
+      "config": {
+        "question": "Release this urgent request?"
+      },
+      "next": {
+        "approved": "ready",
+        "declined": "held"
+      }
+    },
+    {
+      "id": "ready",
+      "type": "finish",
+      "label": "Ready for follow-up"
+    },
+    {
+      "id": "held",
+      "type": "finish",
+      "label": "Held by reviewer"
+    }
+  ]
+}

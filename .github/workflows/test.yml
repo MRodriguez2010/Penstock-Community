@@ -1,0 +1,31 @@
+name: Check Penstock
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest discover -s tests -v
+      - run: node --test tests/*.mjs
+      - run: python penstock.py init && python penstock.py check
+  installed-studio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build
+      - run: curl --fail --retry 15 --retry-all-errors http://127.0.0.1:8765/health
+      - run: python -m pip install selenium==4.34.2
+      - name: Test sign-in, canvas, review, publication, and run history
+        run: |
+          export PENSTOCK_SMOKE_KEY="$(docker compose exec -T penstock python penstock.py key)"
+          python tests/browser_smoke.py
+      - if: always()
+        run: docker compose down -v

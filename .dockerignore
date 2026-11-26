@@ -1,0 +1,10 @@
+*
+!src/
+!src/**
+!server/
+!server/**
+!examples/
+!examples/**
+!penstock.py
+**/__pycache__/
+**/*.pyc

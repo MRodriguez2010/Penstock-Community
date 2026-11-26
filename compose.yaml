@@ -1,0 +1,17 @@
+services:
+  penstock:
+    build: .
+    ports:
+      - "127.0.0.1:${PENSTOCK_PORT:-8765}:8765"
+    volumes:
+      - workspace:/workspace
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      MODEL_API_KEY: ${MODEL_API_KEY:-}
+      MESSAGES_API_KEY: ${MESSAGES_API_KEY:-}
+      INBOX_TOKEN: ${INBOX_TOKEN:-}
+volumes:
+  workspace:

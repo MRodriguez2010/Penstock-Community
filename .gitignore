@@ -1,0 +1,8 @@
+.workspace/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+*.sqlite*
+connections.local.toml
