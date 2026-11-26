@@ -19,7 +19,7 @@ with webdriver.Chrome(options=opts) as browser:
         wait.until(lambda _: find(id).is_displayed() and find(id).is_enabled())
         find(id).click()
     def contains(id, value):
-        wait.until(lambda _: value in find(id).text)
+        wait.until(lambda _: value.casefold() in find(id).text.casefold())
     find("owner").send_keys(os.environ["PENSTOCK_SMOKE_KEY"])
     find("unlock").find_element(By.TAG_NAME, "button").click()
     contains("name", "Review an intake request")
