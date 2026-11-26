@@ -23,3 +23,25 @@
 
 [skills]
 summarize = "skills/summarize.md"
+
+# [services.inventory]
+# protocol = "http"
+# method = "GET"
+# url = "https://service.example.org/inventory"
+
+# [services.news]
+# protocol = "rss"
+# url = "https://feeds.example.org/news.xml"
+
+# [services.tools]
+# description = "Look up a project record by its ID."
+# protocol = "mcp"
+# url = "https://tools.example.org/mcp"
+# tools = ["lookup_record"]
+# key_env = "TOOLS_TOKEN"
+
+# [services.delegate]
+# protocol = "a2a"
+# url = "https://agents.example.org"
+# endpoint_urls = ["https://agents.example.org/rpc"]
+# key_env = "AGENT_TOKEN"

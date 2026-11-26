@@ -1,7 +1,16 @@
-FROM python:3.12-slim
+FROM node:22-bookworm-slim AS workers
+WORKDIR /deps
+COPY package*.json ./
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+
+FROM python:3.12-slim-bookworm
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PENSTOCK_WORKSPACE=/workspace
 RUN mkdir /workspace && chown 65532:65532 /workspace
+COPY --from=workers /usr/local/bin/node /usr/local/bin/node
+COPY --from=workers /deps/node_modules /app/node_modules
+COPY runtime/ runtime/
+COPY LICENSE .
 COPY src/ src/
 COPY server/ server/
 COPY examples/ examples/

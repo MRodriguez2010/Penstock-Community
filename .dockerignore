@@ -8,3 +8,8 @@
 !penstock.py
 **/__pycache__/
 **/*.pyc
+!package.json
+!package-lock.json
+!runtime/
+!runtime/**
+!LICENSE

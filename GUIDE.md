@@ -1,12 +1,14 @@
 # Workflow and operations guide
 
+Project resources, scheduling, triggers, child workflows and the extended block catalog are documented in the [project workflow guide](docs/project-workflows.md).
+
 ## Plans
 
 A plan contains a name and up to 40 steps. IDs are unique. Each step has a type, optional display label, configuration, and outgoing connections. The compiler checks that the graph is connected and acyclic. You can inspect and edit the complete proposal under **Edit proposal**. [Working example](examples/review.json)
 
 | Type | Configuration | Outputs |
 | --- | --- | --- |
-| start | Empty | success |
+| start | Empty or structured input fields | success |
 | agent | Registered provider, instructions, optional skill and response schema | success |
 | condition | Text to match in `contains`, ignoring case | true, false |
 | review | Question shown with the input | approved, declined |

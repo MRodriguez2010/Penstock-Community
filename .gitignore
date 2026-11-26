@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 *.sqlite*
 connections.local.toml
+node_modules/

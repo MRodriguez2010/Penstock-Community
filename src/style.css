@@ -8,3 +8,13 @@ nav{border-right:1px solid var(--line);padding:18px 15px;background:#19191b}nav 
 .inspect,.runbar,#receipt,#author{padding:17px;background:#201f21;border:1px solid var(--line);border-radius:7px;margin:12px 0}.inspect h2,#receipt h2{margin:0}.inspect p{margin:.5rem 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:.65rem 0 0;max-height:260px;overflow:auto;font-size:.81rem;background:#161617;padding:.7rem;border-radius:4px}
 #decision{background:#332c27;border-radius:5px}#decision:not(:empty){padding:12px}#receipt li{margin:.5rem 0}#notice{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);max-width:90vw;background:#f8dbd2;color:#271e20;border:1px solid #845d56;padding:9px 18px;border-radius:6px;z-index:2}#offline{font-size:.87rem}#author label{margin-bottom:10px}
 @media(max-width:740px){header{padding:0 12px;gap:9px}header>span{display:none}#studio{display:block}nav{border-right:0;border-bottom:1px solid var(--line)}nav #library,nav #history{max-height:100px;overflow:auto}nav h2{margin-top:8px}nav details{margin-top:9px;padding-top:7px}.desk{padding:14px 10px}.title{flex-wrap:wrap}.viewport{height:300px}}
+
+#resources { max-width: 72rem; }
+#resources h2 { margin-top: 2rem; }
+#resources details { margin: 1rem 0; }
+#resources label, #resources summary { margin: .5rem 0; }
+.records { overflow-x: auto; margin: .75rem 0; }
+.records table { border-collapse: collapse; font-size: .9rem; }
+.records th, .records td { text-align: left; padding: .35rem .65rem; border-bottom: 1px solid #726b6a; }
+.records td button { background: transparent; border: 0; text-align: left; }
+#manageData { margin: .5rem 0 1.25rem; }

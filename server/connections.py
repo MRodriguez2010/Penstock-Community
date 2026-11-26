@@ -1,4 +1,5 @@
 """Workspace-owned endpoints and instruction files. Workflow data can only select registered names."""
+import agent_schema
 import hashlib
 import json
 import os
@@ -56,7 +57,25 @@ class Connections:
             if not isinstance(entry.get("model"), str) or not entry["model"].strip():
                 raise ValueError(f"Set the model ID for {name}.")
         for name, entry in self.services.items():
-            self.check_endpoint(name, entry, set())
+            self.check_endpoint(name, entry, {"protocol","method","tools","endpoint_urls","description","input_schema"})
+            protocol = entry.get("protocol","http")
+            if protocol not in ("http","rss","mcp","a2a"):
+                raise ValueError(f"Unknown service protocol for {name}.")
+            allowed = {"http":{"method","input_schema"}, "mcp":{"tools"}, "a2a":{"endpoint_urls"}, "rss":set()}[protocol]
+            if set(entry) - {"url","key_env","protocol","description"} - allowed:
+                raise ValueError(f"Unexpected protocol fields for {name}.")
+            if "description" in entry and (not isinstance(entry["description"],str) or len(entry["description"])>1000):
+                raise ValueError("Service descriptions may contain up to 1,000 characters.")
+            if "input_schema" in entry:
+                agent_schema.check(entry["input_schema"])
+            if "method" in entry and entry["method"] not in ("GET","POST"):
+                raise ValueError("HTTP service method must be GET or POST.")
+            for field in ("tools","endpoint_urls"):
+                if field in entry and (not isinstance(entry[field],list) or len(entry[field])>64 or
+                                       not all(isinstance(v,str) and 1<=len(v)<=2048 for v in entry[field])):
+                    raise ValueError(f"Supply a bounded list of {field} for {name}.")
+            for url in entry.get("endpoint_urls",[]):
+                self.check_endpoint(name,{"url":url},set())
         for name, relative in config.get("skills", {}).items():
             if not isinstance(relative, str) or Path(relative).is_absolute():
                 raise ValueError(f"Use a workspace-relative Markdown file for {name}.")
@@ -85,26 +104,42 @@ class Connections:
     def catalog(self):
         return {"providers": {name: {"protocol": e["protocol"], "model": e["model"]}
                               for name, e in self.providers.items()},
-                "skills": sorted(self.skills), "services": sorted(self.services)}
+                "skills": sorted(self.skills), "services": sorted(self.services),
+                "serviceCapabilities": {name:{k:e[k] for k in ("description","input_schema","tools","method") if k in e}
+                                        for name,e in self.services.items()},
+                "serviceProtocols": {name: entry.get("protocol","http") for name,entry in self.services.items()}}
 
     def binding(self, graph):
         """Fingerprint the exact selected destinations, model IDs and skill text, excluding secret values."""
         selected = []
         for node in graph["nodes"]:
             cfg = node["config"]
-            if node["type"] == "agent":
+            if node["type"] in ("loop-container","parallel-container"):
+                from graph_spec import graph_spec
+                selected.append(self.binding(graph_spec(cfg["body"]["steps"],{})))
+            elif "provider" in cfg:
                 selected.append([self.providers.get(cfg["provider"]), self.skills.get(cfg.get("skill"))])
-            elif node["type"] == "service":
+            elif "service" in cfg:
                 selected.append(self.services.get(cfg["service"]))
         encoded = json.dumps(selected, sort_keys=True, ensure_ascii=False).encode()
         return hashlib.sha256(encoded).hexdigest()
 
-    def complete(self, name, system, prompt):
+    def complete(self, name, system, prompt, image=None):
         entry = self.providers[name]
         protocol, model = entry["protocol"], entry["model"]
         key = self.secret(entry)
         headers = {"Authorization": "Bearer " + key} if key else {}
         messages = [{"role": "user", "content": prompt}]
+        if image:
+            mime, data = image
+            if protocol == "ollama":
+                messages[0]["images"] = [data]
+            elif protocol == "anthropic-messages":
+                messages[0]["content"] = [{"type":"image","source":{"type":"base64","media_type":mime,"data":data}},
+                                          {"type":"text","text":prompt}]
+            else:
+                messages[0]["content"] = [{"type":"text","text":prompt},
+                                          {"type":"image_url","image_url":{"url":f"data:{mime};base64,{data}"}}]
         if protocol == "anthropic-messages":
             headers = {"anthropic-version": "2023-06-01"}
             if key:

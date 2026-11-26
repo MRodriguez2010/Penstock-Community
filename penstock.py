@@ -9,6 +9,9 @@ import os
 import secrets
 import shutil
 import sys
+import threading
+import time
+import sqlite3
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -18,6 +21,9 @@ sys.path.insert(0, str(ROOT / "server"))
 from connections import Connections
 from workspace import Workspace, Conflict
 from workflows import propose
+from resources import DEFAULT_PROJECT
+import project_resources
+from triggers import occurrences
 
 
 def initialize(root):
@@ -101,24 +107,58 @@ def make_handler(workspace, key):
             self.send_bytes(200, file.read_bytes(), mimetypes.guess_type(file.name)[0] or "application/octet-stream")
 
         def do_POST(self):
-            if not self.authorized():
+            path = urlsplit(self.path).path
+            hook = path.startswith("/hooks/")
+            if not hook and not self.authorized():
                 return
             origin = self.headers.get("Origin")
             if origin and urlsplit(origin).netloc != self.headers.get("Host"):
                 return self.send_json(403, {"error":"Use the same origin as your workspace."})
             try:
                 size = int(self.headers.get("Content-Length", 0))
-                if not 0 < size <= 196608 or self.headers.get_content_type() != "application/json":
-                    return self.send_json(400, {"error":"Send a JSON object of at most 192 KiB."})
+                if not 0 < size <= (1100000 if path=="/api/resource" else 196608) or self.headers.get_content_type() != "application/json":
+                    return self.send_json(400, {"error":"Send a JSON object within the request size limit."})
                 d = json.loads(self.rfile.read(size))
                 if not isinstance(d, dict):
                     raise ValueError("Send a JSON object.")
                 path = urlsplit(self.path).path
-                if path == "/api/propose":
-                    plan = propose(workspace.connections, d["provider"], d["brief"])
+                if hook:
+                    parts = path.strip("/").split("/")
+                    if len(parts)!=3:
+                        raise ValueError("Invalid webhook path.")
+                    project = workspace.require_project(parts[1])
+                    auth = self.headers.get("Authorization","")
+                    if not auth.startswith("Bearer "):
+                        raise PermissionError("Invalid webhook credentials.")
+                    result = workspace.triggers.webhook(project,parts[2],auth[7:],self.headers.get("Idempotency-Key"),d)
+                elif path == "/api/project-create":
+                    result = workspace.create_project(d["name"])
+                elif path == "/api/project":
+                    result = workspace.catalog(d["project"])
+                elif path in ("/api/resources","/api/resource","/api/triggers","/api/trigger-create","/api/trigger-enable"):
+                    project = workspace.require_project(d.get("project",DEFAULT_PROJECT))
+                    if path == "/api/resources":
+                        result = workspace.data.describe(project)
+                    elif path == "/api/resource":
+                        result = workspace.data.action(project,d["action"],d.get("data",{}))
+                    elif path == "/api/triggers":
+                        result = workspace.triggers.list(project)
+                    elif path == "/api/trigger-create":
+                        result = workspace.triggers.create(project,d["workflow"],d["version"],d["kind"],d["config"],d.get("input"))
+                    else:
+                        result = workspace.triggers.enable(project,d["id"],d["enabled"])
+                elif path == "/api/schedule-preview":
+                    result = {"occurrences":occurrences(d["config"],time.time())}
+                elif path == "/api/propose":
+                    project = workspace.require_project(d.get("project",DEFAULT_PROJECT))
+                    with workspace.data.db(project) as c:
+                        tables = [dict(r) for r in c.execute("""SELECT t.id,t.name,t.columns_json AS columns,s.revision
+                                  FROM project_tables t JOIN typed_schemas s ON s.table_id=t.id ORDER BY t.rowid DESC LIMIT 60""")]
+                    children = [v for v in workspace.catalog(project)["versions"] if v["published"]][:60]
+                    plan = propose(workspace.connections, d["provider"], d["brief"],{"tables":tables,"workflows":children} if d.get("includeResources") is True else {})
                     result = {"plan": plan}
                 elif path == "/api/save":
-                    result = workspace.save(d["plan"], d.get("workflow"), d.get("baseVersion"))
+                    result = workspace.save(d["plan"], d.get("workflow"), d.get("baseVersion"),d.get("project"))
                 elif path == "/api/version":
                     result = workspace.version(d["workflow"], d["version"])
                 elif path == "/api/publish":
@@ -128,18 +168,20 @@ def make_handler(workspace, key):
                 elif path == "/api/run":
                     result = workspace.run(d["id"])
                 elif path == "/api/decide":
-                    result = workspace.decide(d["id"], d["node"], d["approve"])
+                    result = workspace.decide(d["id"], d["node"], d["approve"],d.get("answer"))
                 else:
                     return self.send_json(404, {"error":"Unknown endpoint."})
                 self.send_json(200, result)
-            except Conflict as exc:
+            except PermissionError as exc:
+                self.send_json(403, {"error":str(exc)})
+            except (Conflict,project_resources.Conflict,sqlite3.IntegrityError) as exc:
                 self.send_json(409, {"error":str(exc)})
             except (KeyError, TypeError, ValueError, RecursionError) as exc:
                 self.send_json(400, {"error":str(exc)})
     return Handler
 
 
-ASSETS = {"index.html","app.js","style.css","canvasLayout.js","pipeRouting.js","workflowEvidence.js","penstock.svg"}
+ASSETS = {"index.html","app.js","projects.js","style.css","canvasLayout.js","pipeRouting.js","workflowEvidence.js","penstock.svg"}
 
 
 def main():
@@ -173,10 +215,16 @@ def main():
             workspace.save(json.loads((ROOT / "examples/review.json").read_text("utf-8")))
         with ThreadingHTTPServer((args.bind, args.port), make_handler(workspace, key)) as http:
             print(f"Penstock listening on {args.bind}:{http.server_port}", flush=True)
+            stop = threading.Event()
+            worker = threading.Thread(target=workspace.triggers.serve,args=(stop,),name="penstock-scheduler",daemon=True)
+            worker.start()
             try:
                 http.serve_forever()
             except KeyboardInterrupt:
                 pass
+            finally:
+                stop.set()
+                worker.join(timeout=5)
 
 
 if __name__ == "__main__":

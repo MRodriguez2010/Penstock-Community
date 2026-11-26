@@ -10,7 +10,7 @@ Penstock turns a description of a job into a workflow you can inspect before you
 
 ## Try a workflow in five minutes
 
-Use Python 3.11 or newer. The server and browser client have no package dependencies. On Windows, use `py -3` in place of `python3`.
+Use Python 3.11 or newer for the offline starter, project tables, reviews and fixed-interval schedules. Calendar schedules also use Node.js and an IANA time zone database. For all blocks, install Node.js 22 or newer and run `npm ci --ignore-scripts` in the checkout, or use the container below. On systems without an IANA database, run `python -m pip install tzdata`. On Windows, use `py -3` in place of `python3`.
 
 ```sh
 git clone https://github.com/MRodriguez2010/Penstock-Community.git
@@ -54,7 +54,7 @@ Replace the example URLs and model IDs. Export any named environment variables i
 
 Choose **New**, select the drafting model, and describe the job. For example, with the profiles above, ask *“Use local to summarize this request with the summarize skill. Have me review it. Send approved summaries to inbox and finish declined requests without delivery.”* Inspect the proposal, save the draft, then test it. A workflow can use a different model at each Agent step.
 
-Skills are UTF-8 Markdown files under your workspace. An Agent includes the selected skill in its instructions. Services accept an HTTP POST with `{"input": ...}` and return JSON or an empty body. The workflow can select only services you registered. At each delivery the studio displays the payload and asks for approval. Test mode previews delivery locally. **Model calls in a test use the configured endpoint and can incur charges.**
+Skills are UTF-8 Markdown files under your workspace. An Agent includes the selected skill in its instructions. Services accept an HTTP POST with `{"input": ...}` and return JSON or an empty body. The workflow can select only services you registered. At each delivery the studio displays the payload and asks for approval. You can also register JSON HTTP endpoints, RSS feeds, MCP servers and A2A agents. Each workflow can use the services you install. Test mode previews delivery locally. **Model calls in a test use the configured endpoint and can incur charges.**
 
 ## Run with containers
 
@@ -84,8 +84,13 @@ The endpoint must be reachable from inside the container. A model server in the 
 | Review and delivery | Human reviews route approved and declined work. Each service call has its own payload review. |
 | Versioned governance | Save an immutable version, test it, and explicitly publish it. Changing a selected endpoint, model or skill requires saving and testing a new version. |
 | Receipts and recovery | Each run records its version, decision, outputs, and selected model. A pending decision survives a restart. Interrupted operations are recorded and require an explicit new run. |
+| Project data | Create typed tables, edit rows, import or export CSV, save project files and keep versioned knowledge documents. Test runs use a disposable project database. |
+| Schedules and events | Pin each trigger to a published version. Use intervals, calendar schedules, authenticated webhooks, table changes, project changes or polling for new feed and service items. |
+| Workflow blocks | Use named variables, checks, waits, input forms, model routing, sandboxed JavaScript, project memory, child workflows and bounded loop or parallel bodies. |
 
-This release targets a single trusted workspace owner. Setup uses a local configuration file. Graph editing currently uses proposals and JSON, with the canvas for inspection. Project tables, schedules, multi-user access, and additional integration protocols are outside the current community release. [Workflow format and operational guide](GUIDE.md)
+**Try a project table.** Open **Tables and schedules**, choose **Create or import a table**, enter a table name and column names, then add a row. For a scheduled run, publish a tested workflow first. Select it in the same panel, preview the next occurrences and enable the trigger. Open a delivery to inspect its receipt. [Tables, schedules and block reference](docs/project-workflows.md)
+
+This release targets a single trusted workspace owner. Setup uses a local configuration file. Graph editing currently uses proposals and JSON, with the canvas for inspection. Multi-user permissions, desktop control, and provider-specific native tools remain work in progress. [Workflow format and operational guide](GUIDE.md)
 
 ## Contributing
 
