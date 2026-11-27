@@ -95,14 +95,16 @@ An agent has config {provider:registeredName,instructions:string,skill?:register
 A service has config {service:registeredName}, next on success; its POST requires human approval.
 Each step receives the previous selected step's output. A join uses its first selected predecessor.
 Use only registered capabilities in the catalog. Acyclic graphs only. Do not invent capabilities.
-Do not perform the requested task. Propose a workflow for a person to inspect and test."""
+Do not perform the requested task. Propose a workflow for a person to inspect and test.
+Example of connecting both review outcomes to the same Finish:
+{"name":"Review a change","steps":[{"id":"start","type":"start","label":"Start","config":{},"next":"review"},{"id":"review","type":"review","label":"Review","config":{"question":"Approve this change?"},"next":{"approved":"finish","declined":"finish"}},{"id":"finish","type":"finish","label":"Finish","config":{}}]}"""
 
 
 def propose(connections, provider, brief, project_catalog=None):
     bounded(brief, "Workflow brief", 8000)
     if provider not in connections.providers:
         raise ValueError("Choose a configured provider to draft the workflow.")
-    reply = connections.complete(provider, GUIDE + "\nAdditional blocks and fields: " + json.dumps(blocks.catalog()) + "\nUse {ref:{node:'$input',path:[]}} to bind block fields. Router uses its choice names as ports. Guardrails and verify-value use success and error.\nCatalog: " + json.dumps({**connections.catalog(),"project":project_catalog or {}}), brief).strip()
+    reply = connections.complete(provider, GUIDE + "\nAdditional blocks and fields: " + json.dumps(blocks.catalog()) + "\nUse {ref:{node:'$input',path:[]}} to bind block fields. Router uses its choice names as ports. Guardrails and verify-value use success and error.\nCatalog: " + json.dumps({**connections.catalog(),"project":project_catalog or {}}), brief, draft=True).strip()
     if reply.startswith("```") and reply.endswith("```"):
         reply = reply.split("\n", 1)[-1][:-3].strip()
     try:

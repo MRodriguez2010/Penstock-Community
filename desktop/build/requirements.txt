@@ -1,0 +1,14 @@
+altgraph==0.17.5
+certifi==2026.11.20
+cffi==2.1.1
+cryptography==50.0.2
+macholib==1.16.4; sys_platform == "darwin"
+packaging==26.4
+pefile==2024.8.26; sys_platform == "win32"
+pycparser==3.12
+PyInstaller==6.22.3
+pyinstaller-hooks-contrib==2026.10
+PyJWT==2.15.1
+pywin32-ctypes==0.2.3; sys_platform == "win32"
+setuptools==84.2.1
+tzdata==2026.6

@@ -1,38 +1,169 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Penstock · Workflow studio</title><link rel="icon" href="/src/penstock.svg"><link rel="stylesheet" href="/src/style.css"></head>
-<body><header><div class="brand"><img src="/src/penstock.svg" width="34" height="34" alt=""><b title="Created by Miguel Rodriguez">Penstock</b></div><span>Workflow studio</span><button id="lock" hidden>Lock workspace</button></header>
-<main id="login"><form id="unlock"><h1>Open your workspace</h1><p>Penstock Community Edition by Miguel Rodriguez</p><label>Owner key<input id="owner" type="password" autocomplete="current-password" required></label>
-<p>Run <code>python penstock.py key</code> in your installation to read the key.</p><button class="primary">Open studio</button></form></main>
-<div id="studio" hidden>
-<nav aria-label="Workspace"><label>Project<select id="project"></select></label><button id="addProject">Create project</button>
-<button id="manageData">Tables and schedules</button><div class="navhead"><h2>Workflows</h2><button id="new" title="New workflow">New</button></div><div id="library"></div><h2>Run history</h2><div id="history"></div><details><summary>Connections</summary><div id="catalog"></div><p>Edit <code>connections.toml</code> in your workspace and restart to load changes.</p></details></nav>
-<main class="desk"><section id="resources" hidden><div class="title"><h1>Project workspace</h1><button id="closeResources">Back to workflow</button></div>
-<h2>Tables</h2><div id="tableList" class="actions"></div>
-<details><summary>Create or import a table</summary><label>Table name<input id="tableName"></label>
-<label>Column names, separated by commas<input id="columns" placeholder="Request, Status"></label><button id="createTable">Create table</button>
-<label>Import CSV with a header<textarea id="csv" rows="3"></textarea></label><button id="importTable">Import CSV</button></details>
-<section id="tableView" hidden><h3 id="tableTitle"></h3><label>Table ID<input id="tableId" readonly></label><button id="intakeWorkflow">Create a reviewed intake workflow</button><div id="records" class="records"></div><div class="actions"><button id="prevPage">Previous page</button><button id="nextPage">Next page</button><button id="exportTable">Download CSV</button></div><details><summary>Add a typed column</summary><label>Column name<input id="columnTitle"></label>
-<label>Type<select id="columnType"><option>text</option><option>number</option><option>boolean</option><option>date</option><option>select</option><option>url</option><option>email</option></select></label>
-<label>Choices for a select column, separated by commas<input id="columnChoices"></label>
-<label><input id="columnUnique" type="checkbox"> Require unique values</label><button id="addColumn">Add column</button></details>
-<form id="addRow"><h3>Add a row</h3><div id="rowFields" class="actions"></div><button>Add row</button></form></section>
-<details><summary>Project files and knowledge</summary><label>Project file<input type="file" id="projectFile" accept=".txt,.md,.csv,.json,.log,.tsv,.yaml,.yml,.png,.jpg,.jpeg,.webp"></label><button id="uploadFile">Save file version</button>
-<label>Document title<input id="docName"></label><label>Document text<textarea id="docBody" rows="4"></textarea></label><button id="saveDocument">Save document</button>
-<div id="projectAssets"></div></details>
-<h2>Schedules and event triggers</h2><div id="triggers"></div>
-<label>Published workflow version<select id="target"></select></label><label>Trigger<select id="triggerKind"><option value="interval">Fixed interval</option><option value="calendar">Calendar (cron)</option><option value="rss">New feed item</option><option value="app-trigger">New service item</option><option value="webhook">Webhook</option><option value="table-event">Table change</option><option value="workspace-event">Project change</option></select></label>
-<div id="timingFields"></div><label id="payloadLabel">Run input (JSON)<textarea id="triggerInput" rows="2">{}</textarea></label>
-<div class="actions"><button id="previewSchedule">Preview occurrences</button><button id="armTrigger">Enable trigger</button></div><pre id="triggerResult" aria-live="polite"></pre>
-<h3>Recent deliveries</h3><div id="deliveries"></div><button id="reloadResources">Refresh project data</button></section><section id="author" hidden><div class="title"><h1>Draft a workflow</h1><button id="cancel">Close</button></div>
-<label>What should happen?<textarea id="brief" rows="3" placeholder="Summarize each request, then ask for review before delivery."></textarea></label>
-<div class="actions"><select id="provider" aria-label="Drafting provider"></select><button id="generate" class="primary">Generate proposal</button></div>
-<p id="offline">To generate a proposal, configure a model in your workspace. You can edit and run the starter below offline.</p>
-<label><input type="checkbox" id="includeResources"> Include table names, columns, IDs and published workflow names in the drafting request</label><details><summary>Available block configurations</summary><pre id="blockKinds"></pre></details><label>Workflow proposal<textarea id="proposal" rows="13" spellcheck="false"></textarea></label><button id="save" class="primary">Save draft version</button></section>
-<section id="work"><div class="title"><div><div id="revision" class="meta"></div><h1 id="name"></h1></div><button id="edit">Edit proposal</button></div>
-<div class="canvas-tools"><span>Workflow canvas</span><select id="layout" aria-label="Canvas layout"><option value="human">Readable layout</option><option value="vertical-tb">Vertical layout</option><option value="box">Box layout</option><option value="closest">Closest cleanup</option></select></div>
-<div class="viewport"><div id="canvas"></div></div>
-<div class="inspect" id="inspector"></div>
-<div class="runbar"><label>Input format<select id="inputFormat"><option>Text</option><option>JSON</option></select></label><label>Run input<textarea id="input" rows="2">Urgent request for review</textarea></label><div class="actions"><button id="test" class="primary">Test version</button><button id="publish">Publish version</button><button id="run">Run published version</button></div></div>
-<section id="receipt" hidden><div class="title"><h2>Run receipt</h2><span id="status"></span><button id="refreshReceipt">Refresh run</button></div><div id="decision"></div><ol id="steps"></ol><pre id="result"></pre></section></section>
-</main></div><p role="status" id="notice" hidden></p><script type="module" src="/src/app.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penstock · Workflow studio</title>
+  <link rel="icon" href="/src/penstock.svg">
+  <link rel="stylesheet" href="/src/style.css">
+  <link rel="stylesheet" href="/src/guidedStudio.css">
+  <link rel="stylesheet" href="/src/connections.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><img src="/src/penstock.svg" width="34" height="34" alt=""><b title="Created by Miguel Rodriguez">Penstock</b></div>
+    <span>Workflow Studio</span>
+    <div class="studio-header-actions">
+      <button id="mobileNavigation" type="button" aria-controls="workspaceNavigation" aria-expanded="false" hidden>Workspace menu</button>
+      <button id="lock" hidden>Lock workspace</button>
+    </div>
+  </header>
+  <main id="login">
+    <form id="unlock">
+      <h1>Open your workspace</h1>
+      <p>Penstock Community Edition by Miguel Rodriguez</p>
+      <label>Owner key<input id="owner" type="password" autocomplete="current-password" required></label>
+      <p>Use the owner key saved in the workspace folder you initialized.</p>
+      <button class="primary">Open studio</button>
+    </form>
+  </main>
+  <div id="studio" hidden>
+    <nav id="workspaceNavigation" aria-label="Workspace" data-expanded="false">
+      <label>Project<select id="project"></select></label>
+      <button id="addProject" class="studio-nav-link">Create project</button>
+      <form id="newProjectForm" hidden>
+        <label>Project name<input id="newProjectName" required maxlength="120"></label>
+        <button class="primary">Save project</button>
+      </form>
+      <div class="studio-nav-group">
+        <button id="openStarters" class="studio-nav-link">Starters</button>
+        <button id="openInbox" class="studio-nav-link">Inbox <span id="inboxCount" aria-label="Unread notifications" hidden></span></button>
+        <button id="manageData" class="studio-nav-link">Tables and schedules</button>
+        <button id="openConnections" class="studio-nav-link">Connections</button>
+        <button id="openImprovements" class="studio-nav-link">Improvements</button>
+      </div>
+      <div class="navhead"><h2>Workflows</h2><button id="new" title="New workflow">New</button></div>
+      <div id="library"></div>
+      <h2>Run history</h2>
+      <div id="history"></div>
+    </nav>
+    <main class="desk">
+      <section id="guidedStarter" aria-label="Starter workflows" hidden></section>
+      <section id="connectionsHub" aria-label="Project connections and inbox" hidden></section>
+      <section id="resources" hidden>
+        <div class="title"><h1>Project workspace</h1><button id="closeResources">Back to workflow</button></div>
+        <h2>Tables</h2>
+        <div id="tableList" class="actions"></div>
+        <details id="tableCreateOptions">
+          <summary>Create or import a table</summary>
+          <label>Table name<input id="tableName"></label>
+          <label>Column names, separated by commas<input id="columns" placeholder="Request, Status"></label>
+          <button id="createTable">Create table</button>
+          <label>Import CSV with a header<textarea id="csv" rows="3"></textarea></label>
+          <button id="importTable">Import CSV</button>
+        </details>
+        <section id="tableView" hidden>
+          <h3 id="tableTitle"></h3>
+          <button id="intakeWorkflow">Create a reviewed intake workflow</button>
+          <div id="records" class="records"></div>
+          <form id="cellEdit" hidden>
+            <label id="cellEditLabel">Edit cell<input id="cellEditValue"></label>
+            <div class="actions"><button class="primary">Save cell</button><button id="cancelCell" type="button">Cancel</button></div>
+          </form>
+          <div class="actions"><button id="prevPage">Previous page</button><button id="nextPage">Next page</button><button id="exportTable">Download CSV</button></div>
+          <details id="columnOptions">
+            <summary>Add a typed column</summary>
+            <label>Column name<input id="columnTitle"></label>
+            <label>Type<select id="columnType"><option>text</option><option>number</option><option>boolean</option><option>date</option><option>select</option><option>url</option><option>email</option></select></label>
+            <label>Choices for a select column, separated by commas<input id="columnChoices"></label>
+            <label><input id="columnUnique" type="checkbox"> Require unique values</label>
+            <button id="addColumn">Add column</button>
+          </details>
+          <form id="addRow">
+            <h3>Add a row</h3><div id="rowFields" class="actions"></div><button>Add row</button>
+          </form>
+        </section>
+        <details>
+          <summary>Project files and knowledge</summary>
+          <div id="projectAssetActions">
+            <label>Project file<input type="file" id="projectFile" accept=".txt,.md,.csv,.json,.log,.tsv,.yaml,.yml,.png,.jpg,.jpeg,.webp"></label>
+            <button id="uploadFile">Save file version</button>
+            <label>Document title<input id="docName"></label>
+            <label>Document text<textarea id="docBody" rows="4"></textarea></label>
+            <button id="saveDocument">Save document</button>
+          </div>
+          <div id="projectAssets"></div>
+        </details>
+        <h2>Schedules and event triggers</h2>
+        <div id="triggers"></div>
+        <div id="triggerSetup">
+          <label>Published workflow version<select id="target"></select></label>
+          <label>Trigger<select id="triggerKind"><option value="interval">Fixed interval</option><option value="calendar">Calendar</option><option value="rss">New feed item</option><option value="app-trigger">New service item</option><option value="webhook">Webhook</option><option value="table-event">Table change</option><option value="workspace-event">Project change</option></select></label>
+          <div id="timingFields"></div>
+          <section id="payloadLabel"><h3>Run input</h3><div id="triggerInput"></div></section>
+          <div class="actions"><button id="previewSchedule">Preview occurrences</button><button id="armTrigger">Enable trigger</button></div>
+          <div id="triggerResult" aria-live="polite"></div>
+        </div>
+        <h3>Recent deliveries</h3><div id="deliveries"></div><button id="reloadResources">Refresh project data</button>
+      </section>
+      <section id="author" hidden>
+        <div class="title"><h1 id="authorTitle" tabindex="-1">Draft a workflow</h1><button id="cancel">Close</button></div>
+        <details id="draftAssistant">
+          <summary>Draft with a model</summary>
+          <label>What should happen?<textarea id="brief" rows="4" maxlength="8000" placeholder="Summarize each request, then ask for review before delivery."></textarea></label>
+          <div id="providerSetup">
+            <label>Drafting provider<select id="provider"></select></label>
+            <div id="providerDisclosure" aria-live="polite"></div>
+            <label><input type="checkbox" id="includeResources"> Include project table names, column definitions, IDs, and published workflow names</label>
+            <label><input type="checkbox" id="draftConsent"> <span id="draftConsentText">Confirm this drafting request</span></label>
+            <button id="generate" class="primary">Generate job plan</button>
+          </div>
+          <p id="offline">Choose a model already set up for this workspace, or build the plan by hand.</p>
+          <button id="manualJob" type="button" hidden>Build a plan by hand</button>
+        </details>
+        <div id="jobPlanOverview" hidden></div>
+        <div id="proposal"></div>
+        <button id="save" class="primary">Save draft version</button>
+      </section>
+      <section id="work" hidden>
+        <div class="title">
+          <div><div id="revision" class="meta"></div><h1 id="name" tabindex="-1"></h1></div>
+          <button id="edit">Edit workflow</button>
+        </div>
+        <div class="canvas-tools">
+          <span>Workflow canvas</span>
+          <select id="layout" aria-label="Canvas layout"><option value="human">Readable layout</option><option value="vertical-tb">Vertical layout</option><option value="box">Box layout</option><option value="closest">Closest cleanup</option></select>
+        </div>
+        <div class="viewport"><div id="canvas"></div></div>
+        <div class="inspect" id="inspector"></div>
+        <details id="diagnosis">
+          <summary>Diagnose this workflow</summary>
+          <div id="diagnosisContent"></div>
+        </details>
+        <section id="workflowLifecycle" aria-label="Workflow recovery and releases"></section>
+        <div class="runbar">
+          <h2>Run inputs</h2>
+          <div id="runInput"></div>
+          <details id="runConsent" hidden>
+            <summary>Model and connection permissions</summary>
+            <div id="runModelDisclosures"></div>
+            <label id="runModelLabel"><input type="checkbox" id="runModelConsent"> Allow this run to send information to its configured model providers</label>
+            <label id="runReadLabel"><input type="checkbox" id="runReadConsent"> Allow this live run to read from configured external services</label>
+            <label id="runWriteLabel"><input type="checkbox" id="runWriteConsent"> Allow this live run to request external actions. Each action still requires review.</label>
+          </details>
+          <div class="actions">
+            <button id="test" class="primary">Test version</button><button id="publish">Publish version</button><button id="run">Run active release</button>
+          </div>
+        </div>
+        <section id="receipt" hidden>
+          <div class="title"><h2>Run receipt</h2><span id="status"></span><button id="refreshReceipt">Refresh run</button></div>
+          <div id="decision"></div><ol id="steps"></ol><div id="result"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <aside id="inboxAlert" aria-live="polite" aria-label="Project notification" hidden></aside>
+  <p role="status" id="notice" hidden></p>
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>

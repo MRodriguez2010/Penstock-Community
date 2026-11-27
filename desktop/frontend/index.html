@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penstock Community Setup</title>
+  <link rel="stylesheet" href="setup.css">
+  <script src="setup.js" defer></script>
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <img src="mark.svg" width="38" height="38" alt="">
+      <span>Penstock Community</span>
+    </header>
+
+    <section class="opening" aria-labelledby="open-title">
+      <div>
+        <h1 id="open-title">Open your workspace</h1>
+        <p>Run the starter workflow offline. Add a model when you want to draft workflows or run Agent blocks.</p>
+      </div>
+      <button id="open" type="button" class="primary" disabled>Open Studio</button>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <section class="workspace" aria-labelledby="workspace-title">
+      <div>
+        <h2 id="workspace-title">Workspace folder</h2>
+        <p class="path" id="workspace-path">Loading desktop settings…</p>
+      </div>
+      <div class="controls">
+        <button id="choose" type="button" disabled>Choose folder</button>
+        <button id="reset" type="button" class="quiet" hidden>Use default</button>
+      </div>
+      <p class="hint">Choose an existing Penstock workspace to keep its workflows and history. Its enabled schedules run while Studio is open.</p>
+    </section>
+
+    <section class="models" aria-labelledby="model-title">
+      <div class="section-heading">
+        <h2 id="model-title">Model setup</h2>
+        <p id="selection" class="selection">Offline starter</p>
+      </div>
+      <details id="model-details">
+        <summary>Choose a model</summary>
+        <div class="model-options">
+          <div class="offline-row">
+            <p><strong>Offline starter</strong><br><span>Uses the built-in example without a model.</span></p>
+            <button id="use-offline" type="button" disabled>Use offline starter</button>
+          </div>
+          <div id="packs" aria-label="On-device model packs"></div>
+          <details>
+            <summary>IT publisher keys and transfer details</summary>
+            <p>IT can provision trusted public keys in the folder below. A signed pack must match a trusted signer and the selected model.</p>
+            <p class="path" id="publisher-key-folder"></p>
+            <p>Retry can resume a download when the host confirms the saved bytes. Offline imports restart. Model speed and native hardware qualification are pending.</p>
+          </details>
+          <div id="transfer-controls" class="controls" hidden>
+            <progress id="transfer" aria-label="Model transfer progress" max="100" value="0"></progress>
+            <button id="cancel-transfer" type="button">Cancel transfer</button>
+          </div>
+          <div class="endpoint">
+            <h3>Bring your own endpoint</h3>
+            <p>Enter a chat endpoint you operate or trust. Remote endpoints can receive workflow data when selected for an Agent step or workflow draft.</p>
+            <form id="endpoint-form">
+              <div class="fields">
+                <label for="url">Endpoint URL
+                  <input id="url" name="url" type="url" maxlength="2048" placeholder="http://127.0.0.1:11434/api/chat" required spellcheck="false">
+                </label>
+                <label for="protocol">Protocol
+                  <select id="protocol" name="protocol">
+                    <option value="ollama">Ollama chat</option>
+                    <option value="chat-completions">Chat Completions</option>
+                    <option value="anthropic-messages">Anthropic Messages</option>
+                  </select>
+                </label>
+                <label for="model-id">Model ID
+                  <input id="model-id" name="model" maxlength="128" required spellcheck="false">
+                </label>
+                <label for="endpoint-token">API token (optional)
+                  <input id="endpoint-token" type="password" maxlength="4096" autocomplete="off"
+                    aria-describedby="credential-note">
+                </label>
+              </div>
+              <p id="credential-note" class="hint">Penstock keeps this token in memory until you quit.</p>
+              <label class="check"><input id="remote-consent" type="checkbox"> I allow requests to this endpoint if it is remote.</label>
+              <div class="controls">
+                <button id="save-endpoint" type="submit" disabled>Use endpoint</button>
+                <button id="test-endpoint" type="button" disabled>Send test request</button>
+              </div>
+              <p class="hint">The test sends a short fixed prompt to the entered address.</p>
+            </form>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

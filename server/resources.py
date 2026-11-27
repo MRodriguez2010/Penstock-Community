@@ -12,6 +12,7 @@ import graph_table_core
 import graph_values
 import project_resources as res
 import typed_tables as tables
+import workflow_files
 from graph_table_events import enqueue
 from store import now, row, rows, transaction, uid
 
@@ -127,11 +128,9 @@ class ProjectData:
             return {"columns":meta["columns"],"schema":meta["schema"],"revision":meta["revision"],"rows":tables.data(c,project,meta["id"],250,0)["rows"],
                     "total":meta["rowCount"]}
         if kind=="file":
-            if op=="list":return rows(c,"SELECT id,name,version,digest FROM project_files ORDER BY rowid DESC LIMIT 100")
-            if op=="read":
-                record,data=res.file_data(c,project,res.ident(cfg["id"]))
-                return {**record,"text":data.decode()}
-            return res.save_file(c,project,project,{"name":cfg["name"],"text":cfg.get("text",value)})
+            return workflow_files.execute_file(c,project,cfg,value)
+        if kind=="verify-artifact":
+            return workflow_files.verify(c,project,cfg)
         if kind=="memory":
             thread=cfg.get("conversation","default")
             res.bounded(thread,"conversation",256)

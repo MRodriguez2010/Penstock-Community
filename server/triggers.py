@@ -10,6 +10,7 @@ import uuid
 import calendar_schedule
 import graph_values
 import typed_tables
+import workflow_lifecycle
 from graph_table_events import enqueue
 from store import row, rows, uid
 
@@ -72,7 +73,12 @@ class Triggers:
         else:
             raise ValueError("Unknown trigger type or configuration.")
         key = uid()
-        with self.workspace.data.db(project) as c:
+        with self.workspace.db() as workflows, self.workspace.data.db(project) as c:
+            workflow_lifecycle.require_available(workflows,workflow,live=True)
+            if not workflows.execute(
+                "SELECT 1 FROM versions WHERE workflow=? AND version=? AND published=1",(workflow,version)
+            ).fetchone():
+                raise ValueError("Select a published workflow version in this project.")
             if resource is not None:
                 typed_tables.editable(c,project,resource)
             c.execute("INSERT INTO triggers VALUES(?,?,?,?,?,?,1,?,?,NULL)", (
@@ -93,10 +99,16 @@ class Triggers:
     def enable(self, project, key, enabled):
         if type(enabled) is not bool:
             raise ValueError("Enabled must be true or false.")
-        with self.workspace.data.db(project) as c:
+        with self.workspace.db() as workflows, self.workspace.data.db(project) as c:
             t = row(c,"SELECT * FROM triggers WHERE id=?",key)
             if not t:
                 raise ValueError("Unknown trigger.")
+            if enabled:
+                workflow_lifecycle.require_available(workflows,t["workflow"],live=True)
+                if not workflows.execute(
+                    "SELECT 1 FROM versions WHERE workflow=? AND version=? AND published=1",(t["workflow"],t["version"])
+                ).fetchone():
+                    raise ValueError("Select a published workflow version before enabling this trigger.")
             due = t["next_due"]
             if enabled and not t["enabled"] and t["kind"] == "schedule":
                 due = occurrences(json.loads(t["config"])["timing"], time.time(), 1)[0]
@@ -107,10 +119,11 @@ class Triggers:
         if not isinstance(event_id,str) or not 1 <= len(event_id) <= 128:
             raise ValueError("Supply an Idempotency-Key of 1 to 128 characters.")
         graph_values.bound(value)
-        with self.workspace.data.db(project) as c:
+        with self.workspace.db() as workflows, self.workspace.data.db(project) as c:
             t = row(c,"SELECT * FROM triggers WHERE id=? AND enabled=1 AND kind='webhook'",key)
             if not t or not hmac.compare_digest(t["token_hash"],hashlib.sha256(token.encode()).hexdigest()):
                 raise PermissionError("Invalid webhook credentials.")
+            workflow_lifecycle.require_available(workflows,t["workflow"],live=True)
             delivery = str(uuid.uuid5(uuid.UUID(key), event_id))
             prior = row(c,"SELECT payload FROM deliveries WHERE id=?",delivery)
             if prior and json.loads(prior["payload"]) != value:
@@ -170,7 +183,14 @@ class Triggers:
                 with self.workspace.data.db(project) as c:
                     failures=row(c,"SELECT failures FROM poll_state WHERE trigger_id=?",t["id"])["failures"]+1
                     c.execute("UPDATE poll_state SET failures=? WHERE trigger_id=?",(failures,t["id"]))
-                    c.execute("UPDATE triggers SET next_due=?,last_error=? WHERE id=?",(at+min(3600,cfg["seconds"]*2**min(failures,8)),str(exc)[:500],t["id"]))
+                    c.execute("UPDATE triggers SET next_due=?,last_error=? WHERE id=? AND enabled=1",
+                              (at+min(3600,cfg["seconds"]*2**min(failures,8)),str(exc)[:500],t["id"]))
+
+    def require_ready(self, project, delivery, workflow, version):
+        with self.workspace.data.db(project) as c:
+            if not c.execute("""SELECT 1 FROM deliveries WHERE id=? AND workflow=? AND version=? AND state='ready'""",
+                             (delivery,workflow,version)).fetchone():
+                raise workflow_lifecycle.LifecycleConflict("This trigger delivery is no longer ready.")
 
     def tick(self, project, at):
         self.poll(project,at)
@@ -195,7 +215,7 @@ class Triggers:
         for item in ready:
             try:
                 run = self.workspace.start(item["workflow"],item["version"],"live",json.loads(item["payload"]),
-                                           item["id"],lineage=json.loads(item["lineage"]))
+                                           item["id"],lineage=json.loads(item["lineage"]),trigger_delivery=True)
                 state, detail, rid = "dispatched", None, run["id"]
             except (TypeError, ValueError) as exc:
                 state, detail, rid = "failed", str(exc), None

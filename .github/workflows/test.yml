@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-managed.txt
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: python -m unittest discover -s tests -v
       - run: node --test tests/*.mjs
@@ -28,5 +29,11 @@ jobs:
         run: |
           export PENSTOCK_SMOKE_KEY="$(docker compose exec -T penstock python penstock.py key)"
           python tests/browser_smoke.py
+      - name: Check offline starters and the executive invitation journey
+        run: |
+          npm install --prefix "$RUNNER_TEMP/guided-browser" --no-audit --no-fund --ignore-scripts --no-package-lock puppeteer-core@25.3.0 axe-core@4.11.1
+          export CHROME_BIN="$(command -v google-chrome)" PUPPETEER_MODULE="$RUNNER_TEMP/guided-browser/node_modules/puppeteer-core"
+          export AXE_SCRIPT="$RUNNER_TEMP/guided-browser/node_modules/axe-core/axe.min.js"
+          python tests/verify_guided.py
       - if: always()
         run: docker compose down -v

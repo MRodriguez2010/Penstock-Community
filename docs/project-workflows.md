@@ -2,12 +2,14 @@
 
 ## Run a reviewed intake without a model
 
-1. Open **Tables and schedules**. Create a table called **Requests** with the columns **Request, Status**. Add a row or paste CSV with the same header. Use **Add a typed column** for numbers, dates, booleans, URLs, email addresses or a fixed list of choices.
-2. Choose **Create a reviewed intake workflow**. The studio fills in a Start, a human review, an insert into this exact table, and the approved and declined paths. Save the version. The run input contains sample JSON using your column names.
-3. Select **Test version** and approve the row. Inspect the receipt and reopen the table. Testing uses a disposable copy of project storage. **Publish version**, then **Run published version** and approve a live row. Find it in the table and download the CSV.
-4. To run on a clock, return to **Tables and schedules** and select that published version. Choose an interval or enter a cron expression and IANA time zone. Supply a JSON row with your columns, preview the dates, then enable the trigger. Each scheduled intake waits for its own approval. **Pause** stops future admissions. Open a delivery to see the exact run and version.
+From **Starters**, open **Reviewed intake**, preview the sample, and approve. Penstock saves one row in your project. To design your own intake for an existing table, follow the steps below.
 
-Use **Create project** to separate tables, documents, files, schedules and workflow libraries. The owner key can access every project in the installation. Projects provide organization and data scope for one trusted owner.
+1. Open **Tables and schedules**. Create a table called **Requests** with the columns **Request, Status**. Add a row or paste CSV with the same header. Use **Add a typed column** for numbers, dates, booleans, URLs, email addresses or a fixed list of choices.
+2. Choose **Create a reviewed intake workflow**. The studio fills in a Start, a human review, an insert into this exact table, and the approved and declined paths. Save the version. The run input shows fields for the sample row.
+3. Select **Test offline** and approve the row. Inspect the receipt and reopen the table. Testing uses a disposable copy of project storage. **Publish version**, then **Run published version** and approve a live row. Find it in the table and download the CSV.
+4. To run on a clock, return to **Tables and schedules** and select that published version. Choose an interval or enter a cron expression and IANA time zone. Fill in the scheduled input fields, preview the dates, then enable the trigger. Each scheduled intake waits for its own approval. **Pause** stops future admissions. Open a delivery to see the exact run and version.
+
+Use **Create project** to separate tables, documents, files, schedules and workflow libraries. The owner key can access every project in the installation. Managed members see only projects to which they belong.
 
 ## Draft with a model
 
@@ -50,7 +52,7 @@ For model-free operation, all project storage, imports, human reviews, child wor
 
 ## Project API
 
-All studio APIs require the owner bearer token. The following JSON requests use POST. The workspace endpoint also accepts authenticated GET. Mutation keys are UUIDs chosen by the caller. Reuse a key only to retry the same change.
+The owner bearer token can call the studio APIs. Managed browser sessions also authenticate through their project roles and a CSRF token. The following JSON requests use POST. The workspace endpoint also accepts authenticated GET. Mutation keys are UUIDs chosen by the caller. Reuse a key only to retry the same change.
 
 | Path | Request or result |
 | --- | --- |

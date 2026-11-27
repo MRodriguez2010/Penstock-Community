@@ -1,0 +1,20 @@
+.connection-center{max-width:65rem;width:100%;margin:auto;padding:clamp(12px,3vw,32px)}.connection-center nav{position:static;display:flex;flex-wrap:wrap;width:auto;height:auto;gap:6px;border:0;padding:0;background:none}.connection-center button{min-height:44px;margin:4px 5px 4px 0}.connection-center button[aria-pressed=true]{outline:2px solid currentColor;outline-offset:-2px}.connection-center article{padding:16px 0;border-bottom:1px solid currentColor}.connection-center h3,.connection-center article p{margin:.35em 0}.connection-center small{display:block;line-height:1.55}.connection-center .connection-confirm,.connection-center .connection-results{padding:10px 14px;margin-top:8px;border-inline-start:3px solid currentColor}.connection-center details{margin:20px 0}.connection-center summary{cursor:pointer;min-height:44px}.connection-center [role=status]:empty{display:none}
+#inboxAlert {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 8;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: .8rem 1rem;
+  border: 1px solid var(--studio-line);
+  border-radius: .5rem;
+  background: var(--studio-raised, #292729);
+  box-shadow: 0 .3rem 1.5rem #0004;
+}
+#inboxAlert strong, #inboxAlert span { display: block; margin: 0 0 .4rem; overflow-wrap: anywhere; }
+#inboxAlert button { margin-right: .35rem; }
+#inboxCount { margin-left: .35rem; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  #inboxAlert:not([hidden]), #notice:not([hidden]), .guided-review { animation: showDecision 150ms ease-out; }
+  @keyframes showDecision { from { transform: translateY(.2rem); } to { transform: none; } }
+}

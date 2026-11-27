@@ -7,21 +7,29 @@ import agent_schema
 import graph_knowledge
 import graph_table_core
 import graph_values
+import portable_lookup
+import portable_transforms
 import structured_start
+import workflow_files
 import workers
 from graph_spec import graph_id
 
-RESOURCES = {"table","knowledge","pinned-table","file","memory","callback","step-log"}
+RESOURCES = {"table","knowledge","pinned-table","file","verify-artifact","memory","callback","step-log"}
 MODELS = {"translate","evaluator","router","rank","local-model","chat","thinking","decisions","vision"}
 SERVICES = {"http","rss","mcp","a2a"}
 CONTAINERS = {"loop-container","parallel-container"}
 CHILDREN = {"invoke-workflow","for-each","parallel-each"}
 # Required and optional fields. Each names an actual input to the runner.
 FIELDS = {
+    **{kind: ("adapter operation query limit", "") for kind in portable_lookup.SCHEMAS},
+    "group-records": ("field", "rows"),
+    "ordered-condition": ("branches", "value"),
+    "source-read": ("source binding sample",""),
     "loop-container": ("body","count items"), "parallel-container": ("body","count items"),
     "vision": ("provider fileId question",""), "decisions": ("provider question threshold",""),
     "credential": ("operation","profile"), "deployments": ("operation workflow","version"),
-    "pinned-table": ("tableId revision",""), "file": ("operation","id name text"),
+    "pinned-table": ("tableId revision",""), "file": ("operation","id name text version search limit latestOnly"),
+    "verify-artifact": ("expectedSha256 expectedBytes","id name version"),
     "memory": ("operation","conversation role content"), "callback": ("",""), "step-log": ("operation","label"),
     "variables": ("values",""), "response": ("value",""), "verify-value": ("","schema value expected"),
     "function": ("code","params"), "guardrails": ("validationType","regex"),
@@ -56,9 +64,30 @@ def validate(kind, cfg, connections):
     must, may = (set(group.split()) for group in FIELDS[kind])
     if not must <= set(cfg) or set(cfg) - must - may:
         raise ValueError(f"Check the configuration fields for {kind}.")
+    if kind in portable_lookup.KINDS:
+        return portable_lookup.validate(kind,cfg)
+    if kind == "group-records":
+        return portable_transforms.validate_group(cfg)
+    if kind == "ordered-condition":
+        return portable_transforms.validate_ordered(cfg)
+    if kind == "verify-artifact":
+        return workflow_files.validate_verification(cfg)
+    if kind=="source-read":
+        import re
+        from office_connections import CAPABILITIES
+        from ops_events import NOTIFIERS
+        if not isinstance(cfg["source"],str) or cfg["source"] not in CAPABILITIES or cfg["source"] in NOTIFIERS:
+            raise ValueError("Choose a project connection.")
+        if not isinstance(cfg["binding"],str) or not re.fullmatch(r"[0-9a-f]{64}",cfg["binding"]):
+            raise ValueError("Add this source from Connections to bind its settings.")
+        if not isinstance(cfg["sample"],list) or len(cfg["sample"])>5 or not all(isinstance(x,str) and len(x)<=240 for x in cfg["sample"]):
+            raise ValueError("Supply up to five short sample items.")
+        return {"success"}
     op = cfg.get("operation")
     if kind in OPERATIONS and op not in OPERATIONS[kind]:
         raise ValueError(f"Unknown {kind} operation.")
+    if kind == "file":
+        return workflow_files.validate_file(cfg)
     for key in ("instructions","language","criteria","question","code"):
         if key in cfg and (not isinstance(cfg[key],str) or not cfg[key].strip() or len(cfg[key])>16000):
             raise ValueError(f"Supply bounded text for {key}.")
@@ -90,8 +119,6 @@ def validate(kind, cfg, connections):
         project_resources.ident(cfg["tableId"])
         if type(cfg["revision"]) is not int or cfg["revision"]<1:
             raise ValueError("Choose the table ID and a positive revision number.")
-    if kind=="file" and (op=="read" and "id" not in cfg or op=="save" and "name" not in cfg):
-        raise ValueError("Supply the file ID to read or a file name to save.")
     if kind=="variables":
         if not isinstance(cfg["values"],dict) or len(cfg["values"])>64:
             raise ValueError("Supply up to 64 named variables.")
@@ -128,10 +155,16 @@ def catalog():
                                     for op,required in module.REQUIRED.items()}}
     for kind, choices in OPERATIONS.items():
         result[kind]["operations"]=sorted(choices)
+    for kind, choices in portable_lookup.SCHEMAS.items():
+        result[kind]["operations"]=sorted(choices)
     return result
 
 
 def execute(kind, cfg, value, connections, ctx):
+    if kind == "group-records":
+        return portable_transforms.group(cfg, value)
+    if kind == "ordered-condition":
+        return portable_transforms.ordered(cfg, value)
     if kind=="variables":
         ctx.setdefault("variables",{}).update(cfg["values"])
         graph_values.bound(ctx["variables"])
@@ -208,6 +241,13 @@ def deliver(kind, connections, cfg, value, invocation):
     if kind=="rss":
         return workers.feed(connections,cfg["service"])
     return workers.sdk(connections,kind,cfg,value,invocation)
+
+
+def external_read(kind, cfg, connections):
+    if kind == "http":
+        return connections.services[cfg["service"]].get("method", "POST") == "GET"
+    return (kind == "rss" or kind == "mcp" and cfg["operation"] in {"discover", "list"} or
+            kind == "a2a" and cfg["operation"] in {"a2a_get_agent_card", "a2a_get_task"})
 
 
 def vision(data, record, cfg, connections):
