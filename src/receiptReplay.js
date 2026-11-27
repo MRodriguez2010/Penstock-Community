@@ -62,7 +62,7 @@ function comparison(result) {
 }
 
 export function mountReceiptReplay(host, request) {
-  const section = el('section');
+  const section = el('section', undefined, 'receipt-replay');
   const trigger = el('button', 'Replay receipt offline');
   trigger.type = 'button';
   const status = el('p');
