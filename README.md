@@ -6,11 +6,17 @@ Created by Miguel Rodriguez. You can self-host, modify and share Penstock for no
 
 Penstock turns a description of a job into a workflow you can inspect before you run it. Choose your model, review the proposed graph, and follow the input and output of each step. A person can approve a branch or inspect exactly what a service will receive. The studio and run history live on your infrastructure.
 
-![A published intake workflow waiting for review. The canvas highlights the route taken by an urgent request.](docs/workflow-studio.png)
+![An executive brief ready for approval. The result shows decisions, overdue work, and the source of each update.](docs/guided-brief.png)
 
-## Try a workflow in five minutes
+## Start with a result
 
-Use Python 3.11 or newer for the offline starter, project tables, reviews and fixed-interval schedules. Calendar schedules also use Node.js and an IANA time zone database. For all blocks, install Node.js 22 or newer and run `npm ci --ignore-scripts` in the checkout, or use the container below. On systems without an IANA database, run `python -m pip install tzdata`. On Windows, use `py -3` in place of `python3`.
+Choose **Weekly executive brief** to turn example updates into a one-page brief with decisions, overdue work and sources. Change the reporting period and preview it. Approval saves one local Markdown file. **Reviewed intake** prepares a typed table row. Approve to add it or decline to leave the table untouched. On a personal workspace both starters run without an external account, model download or provider credential. A receipt records the exact version, inputs and decision.
+
+**Personal desktop.** The desktop app creates its own private workspace and opens the studio. Two optional local reasoning packs can be selected during setup or added later. Native installers are under qualification. Signed downloads will appear in Releases after platform acceptance. [Desktop packaging and offline setup](docs/desktop.md)
+
+**Organization link.** IT deploys the self-hosted service and opens **Team setup** to configure local invitations or its OIDC identity provider. With the Executive role, someone opens an invitation or sign-in link, describes a job, reviews the proposed plan, tests it, and approves the result. IT controls publication and live-run initiation. Commercial deployments require written permission from Miguel Rodriguez. [Managed setup](docs/managed.md)
+
+**Run from source.** Use Python 3.11 or newer. For calendar schedules and all optional workflow workers install Node.js 22 or newer and run `npm ci --ignore-scripts`, or use the container below.
 
 ```sh
 git clone https://github.com/MRodriguez2010/Penstock-Community.git
@@ -20,13 +26,14 @@ python3 penstock.py key
 python3 penstock.py serve
 ```
 
-Open [the local studio](http://127.0.0.1:8765). Paste the owner key from the terminal. The starter workflow runs entirely offline.
+Open [the local studio](http://127.0.0.1:8765) and enter the owner key shown by the terminal. On Windows use `py -3` for the source installation. Systems without an IANA time zone database need `python -m pip install tzdata` for calendar scheduling.
 
-1. Open **Review an intake request**. The canvas shows where ordinary requests finish and where urgent ones need a decision.
-2. Leave the sample input in place and select **Test version**. Select a block to inspect its configuration. Approve the urgent request and open its receipt.
-3. Select **Publish version**, then **Run published version**. Try an input without the word `urgent` to follow the other branch. Previous runs remain attached to the version that produced them.
+Try the [interactive design sandbox](design-sandbox/index.html) by opening its index file from the complete checkout in a browser. It contains three sample jobs, including a failed run you can rehearse.
 
 ## Bring your models, skills, and services
+
+Open **Connections** to add a named local or hosted model, install an instruction skill, check a project source, or create a workflow using that source. An offline preview uses sample values. A live source read identifies the destination and requires permission. The inbox preserves approval requests and results across sign-in and restart. [Connection setup and recovery](docs/operations.md) · [Connect Microsoft or Google](docs/office-signin.md)
+
 
 `init` creates `.workspace/connections.toml`, a sample Markdown skill, and a random owner key. You can configure several model profiles at once. Each profile names a protocol, the full request URL, and the model ID that your endpoint actually serves.
 
@@ -78,7 +85,7 @@ The endpoint must be reachable from inside the container. A model server in the 
 
 | Capability | Behavior |
 | --- | --- |
-| Workflow proposals | A configured local or hosted model proposes a bounded graph. You can also edit the JSON proposal or use the offline starter. |
+| Workflow proposals | A configured local or hosted model proposes a bounded graph. Review and edit labeled steps or choose an offline starter. |
 | Visual orchestration | Inspect the graph, change its layout, follow branches, fan out to several steps, and join selected branches. The run cursor executes branches in deterministic order. |
 | Model steps | Select a provider and optional instruction skill per step. An optional response schema validates typed model outputs. |
 | Review and delivery | Human reviews route approved and declined work. Each service call has its own payload review. |
@@ -90,7 +97,7 @@ The endpoint must be reachable from inside the container. A model server in the 
 
 **Try a project table.** Open **Tables and schedules**, choose **Create or import a table**, enter a table name and column names, then add a row. For a scheduled run, publish a tested workflow first. Select it in the same panel, preview the next occurrences and enable the trigger. Open a delivery to inspect its receipt. [Tables, schedules and block reference](docs/project-workflows.md)
 
-This release targets a single trusted workspace owner. Setup uses a local configuration file. Graph editing currently uses proposals and JSON, with the canvas for inspection. Multi-user permissions, desktop control, and provider-specific native tools remain work in progress. [Workflow format and operational guide](GUIDE.md)
+A personal workspace supports one owner. Managed installations add scoped roles, invitations and optional single sign-on. Desktop distribution, additional connector coverage, and cross-platform qualification remain works in progress. [Workflow format and operational guide](GUIDE.md)
 
 ## Contributing
 

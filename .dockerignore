@@ -3,6 +3,9 @@
 !src/**
 !server/
 !server/**
+!admin/
+!admin/**/*.py
+!admin/*.py
 !examples/
 !examples/**
 !penstock.py
@@ -10,6 +13,8 @@
 **/*.pyc
 !package.json
 !package-lock.json
+!requirements-managed.txt
+!requirements-aws.txt
 !runtime/
 !runtime/**
 !LICENSE

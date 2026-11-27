@@ -18,3 +18,17 @@ nav{border-right:1px solid var(--line);padding:18px 15px;background:#19191b}nav 
 .records th, .records td { text-align: left; padding: .35rem .65rem; border-bottom: 1px solid #726b6a; }
 .records td button { background: transparent; border: 0; text-align: left; }
 #manageData { margin: .5rem 0 1.25rem; }
+
+.receipt-replay details {
+  border-block-start: 1px solid var(--line, #ccd4d1);
+}
+.receipt-replay summary {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: .65rem .4rem;
+  cursor: pointer;
+}
+.receipt-replay summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

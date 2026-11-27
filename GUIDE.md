@@ -4,7 +4,7 @@ Project resources, scheduling, triggers, child workflows and the extended block 
 
 ## Plans
 
-A plan contains a name and up to 40 steps. IDs are unique. Each step has a type, optional display label, configuration, and outgoing connections. The compiler checks that the graph is connected and acyclic. You can inspect and edit the complete proposal under **Edit proposal**. [Working example](examples/review.json)
+A plan contains a name and up to 40 steps. IDs are unique. Each step has a type, optional display label, configuration, and outgoing connections. The compiler checks that the graph is connected and acyclic. Inspect the proposal in the visual step editor. Select a step to edit its settings and routing. [Working example](examples/review.json)
 
 | Type | Configuration | Outputs |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ An Agent accepts an optional `schema` object. Use an object root with typed prop
 
 ## Data and access
 
-By default the server binds to 127.0.0.1. For private remote access use a tunnel or a TLS reverse proxy. The browser sends an owner bearer key with API requests. Anyone with the key has workspace access. Locking the studio clears the key from the current tab. To revoke current keys, stop the server, replace the contents of `owner.key` with a new random secret of at least 32 characters, and restart.
+By default the server binds to 127.0.0.1. For private remote access use a tunnel or a TLS reverse proxy. The owner-key sign-in sends a bearer key. Desktop and managed sign-ins use sessions. Anyone with the key has workspace access. Locking the studio clears the key from the current tab. To revoke current keys, stop the server, replace the contents of `owner.key` with a new random secret of at least 32 characters, and restart.
 
 SQLite stores drafts, versioned graphs, input values, model outputs, decisions, and run receipts. Treat these as project data. Model prompts and selected skill text go to the model endpoint chosen for the step. Services receive only the reviewed payload. Register TLS endpoints for credentials crossing machines. Configure access, retention, and backups to match the data you process.
 
@@ -29,7 +29,7 @@ Use `--workspace PATH` after any CLI command to select the data directory. Run o
 
 ## Common setup issues
 
-- **No drafting provider**. Configure a named profile and restart Penstock. Under Connections, check that the name appears.
+- **No drafting provider**. Try either starter offline or add a model under **Connections**. Restart after editing the configuration file directly.
 - **Endpoint error**. Confirm the URL includes the full API path, the server can reach it, and the model ID exists there. Use the provider protocol that matches the endpoint's response format.
 - **Service delivery**. Review the pending value in the receipt. A failed or interrupted live POST can have an unknown outcome. Check the receiving service before starting another run.
 - **A selected connection or skill changed**. Save a new version of the proposal and test it with the new configuration.

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Penstock · Design sandbox</title><link rel="stylesheet" href="sandbox.css"><script src="sandbox.js" defer></script></head>
+<body><header><strong>Penstock</strong><span>Design sandbox</span><button id="theme" aria-pressed="false">Dark paper</button></header>
+<main><nav aria-label="Sample workflows"><p class="section">Workspace</p><button data-job="brief">Weekly executive brief</button><button data-job="intake">Reviewed intake</button><button data-job="failure">Investigate a failed run</button><p class="fixture">Sample workspace<br>Changes reset on reload.</p></nav>
+<article aria-labelledby="heading"><p id="kicker" class="section"></p><h1 id="heading"></h1><p id="intro" class="intro"></p><div id="content"></div></article>
+<aside><p class="section">Decision</p><h2 id="decision"></h2><p id="consequence"></p><button id="approve" class="primary"></button><button id="revise">Request changes</button>
+<form id="revision" hidden><label for="reason">What should change?</label><textarea id="reason" required maxlength="300"></textarea><button>Save request</button></form>
+<details><summary>View workflow</summary><ol id="steps"></ol></details><p id="receipt" role="status"></p></aside></main></body></html>
